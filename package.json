@@ -1,0 +1,15 @@
+{
+  "name": "scheduler-api",
+  "version": "1.0.0",
+  "description": "Scheduler App Server",
+  "main": "app/main.js",
+  "repository": "git@github.com:berkerbugur/scheduler-api-dev.git",
+  "author": "BeBu <bugur.berker@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start-dev": "node app/main.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
