@@ -7,9 +7,18 @@
   "author": "BeBu <bugur.berker@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start-dev": "node app/main.js"
+    "start": "node app/main.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "date-fns": "^2.30.0",
+    "express": "^4.18.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
   }
 }
