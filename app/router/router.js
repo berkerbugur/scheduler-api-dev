@@ -38,6 +38,8 @@ router.post('/api/v1/schedule/create', async (req, res) => {
 })
 
 router.put('/api/v1/schedule/extend', async (req, res) => {
+  console.log(req.body)
+
   try {
     const validation = validateScheduleExtend(req.body)
 
