@@ -7,8 +7,8 @@ const corsOptions = {
     origin: ['http://localhost:3000'],
 }
 
-app.use(router);
 app.use(cors(corsOptions))
+app.use(router);
 
 app.listen(9080, () => {
     console.log('Listening on http://localhost:9080');
