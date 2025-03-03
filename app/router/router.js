@@ -7,6 +7,8 @@ const {transformSchedule} = require("../transformer/transformSchedule");
 router.use(express.json())
 
 router.post('/api/v1/schedule/create', async (req, res) => {
+  console.log(req.body)
+
   try {
     const validation = validateScheduleCreate(req.body)
     

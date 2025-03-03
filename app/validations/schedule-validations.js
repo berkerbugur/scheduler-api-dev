@@ -1,27 +1,47 @@
 const { z } = require('zod')
-const { 
-  parseISO, 
-  addDays, 
-  isAfter,
+const {
+  addDays,
+  isSameDay,
   startOfDay,
-  isSameDay
 } = require('date-fns')
+
+const validateDateString = (dateStr) => {
+  try {
+    const date = startOfDay(new Date(dateStr));
+    return date instanceof Date && !isNaN(date);
+  } catch {
+    return false;
+  }
+}
+
+const isDateAfterOrEqual = (date1, date2) => {
+  const d1 = startOfDay(new Date(date1)).getTime()
+  const d2 = startOfDay(new Date(date2)).getTime()
+  return d1 >= d2
+}
+
+const isDateAfter = (date1, date2) => {
+  const d1 = startOfDay(new Date(date1)).getTime()
+  const d2 = startOfDay(new Date(date2)).getTime()
+  return d1 > d2
+}
 
 // Shared schemas
 const timeSlotSchema = z.array(z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/))
-const scheduleSchema = z.record(z.string().datetime(), timeSlotSchema)
+const dateSchema = z.string().refine(validateDateString, 'Invalid date format')
+const scheduleSchema = z.record(dateSchema, timeSlotSchema)
 
 // Create schedule schema
 const createRequestSchema = z.object({
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
+  startDate: dateSchema,
+  endDate: dateSchema,
   schedule: scheduleSchema
 })
 
 // Extend schedule schema
 const extendRequestSchema = z.object({
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
+  startDate: dateSchema,
+  endDate: dateSchema,
   schedule: scheduleSchema
 })
 
@@ -43,38 +63,38 @@ function validateScheduleCreate(data) {
   const { startDate, endDate, schedule } = validationResult.data
 
   // Parse dates
-  const parsedStartDate = parseISO(startDate)
-  const parsedEndDate = parseISO(endDate)
+  const parsedStartDate = startOfDay(new Date(startDate))
+  const parsedEndDate = startOfDay(new Date(endDate))
   const today = startOfDay(new Date())
 
   // Validate dates are in the future
-  if (!isAfter(parsedStartDate, today)) {
+  if (!isDateAfterOrEqual(parsedStartDate, today)) {
     validationErrors.push({
       path: 'startDate',
-      message: 'Start date must be in the future'
+      message: 'Start date must be today or in the future'
     })
   }
 
-  if (!isAfter(parsedEndDate, today)) {
+  if (!isDateAfterOrEqual(parsedEndDate, today)) {
     validationErrors.push({
       path: 'endDate',
-      message: 'End date must be in the future'
+      message: 'End date must be today or in the future'
     })
   }
 
   // Validate end date is not before start date
-  if (!isAfter(parsedEndDate, parsedStartDate)) {
+  if (!isDateAfterOrEqual(parsedEndDate, parsedStartDate)) {
     validationErrors.push({
       path: 'dateRange',
-      message: 'End date must be after start date'
+      message: 'End date must be equal to or after start date'
     })
   }
 
   // Validate schedule entries
   const scheduleDates = Object.keys(schedule)
-    .map(date => parseISO(date))
-    .sort((a, b) => a.getTime() - b.getTime())
-  
+      .map(date => startOfDay(new Date(date)))
+      .sort((a, b) => a.getTime() - b.getTime())
+
   // Check for empty days
   if (scheduleDates.length === 0) {
     validationErrors.push({
@@ -146,38 +166,38 @@ function validateScheduleExtend(data) {
   const { startDate, endDate, schedule } = validationResult.data
 
   // Parse dates
-  const parsedStartDate = parseISO(startDate)
-  const parsedEndDate = parseISO(endDate)
+  const parsedStartDate = startOfDay(new Date(startDate))
+  const parsedEndDate = startOfDay(new Date(endDate))
   const today = startOfDay(new Date())
 
   // Validate dates are in the future
-  if (!isAfter(parsedStartDate, today)) {
+  if (!isDateAfterOrEqual(parsedStartDate, today)) {
     validationErrors.push({
       path: 'startDate',
-      message: 'Start date must be in the future'
+      message: 'Start date must be today or in the future'
     })
   }
 
-  if (!isAfter(parsedEndDate, today)) {
+  if (!isDateAfterOrEqual(parsedEndDate, today)) {
     validationErrors.push({
       path: 'endDate',
-      message: 'End date must be in the future'
+      message: 'End date must be today or in the future'
     })
   }
 
   // Validate end date is not before start date
-  if (!isAfter(parsedEndDate, parsedStartDate)) {
+  if (!isDateAfterOrEqual(parsedEndDate, parsedStartDate)) {
     validationErrors.push({
       path: 'dateRange',
-      message: 'End date must be after start date'
+      message: 'End date must be equal to or after start date'
     })
   }
 
   // Validate schedule entries
   const scheduleDates = Object.keys(schedule)
-    .map(date => parseISO(date))
-    .sort((a, b) => a.getTime() - b.getTime())
-  
+      .map(date => startOfDay(new Date(date)))
+      .sort((a, b) => a.getTime() - b.getTime())
+
   // Check for empty days
   if (scheduleDates.length === 0) {
     validationErrors.push({
